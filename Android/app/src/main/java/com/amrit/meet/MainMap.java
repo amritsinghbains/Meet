@@ -14,12 +14,17 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import android.provider.Settings.Secure;
 
 public class MainMap extends FragmentActivity {
 
@@ -29,7 +34,10 @@ public class MainMap extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_map);
+        android_id = Secure.getString(this.getContentResolver(),
+                Secure.ANDROID_ID);
         setUpMapIfNeeded();
+
     }
 
     @Override
@@ -79,37 +87,31 @@ public class MainMap extends FragmentActivity {
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setTiltGesturesEnabled(true);
 
-        new GetContacts().execute();
+//        new GetContacts().execute();
+        new GetRoom().execute();
+
+
 
     }
-    private static String url = "http://api.androidhive.info/contacts/";
+    String android_id;
+    String group_uuid;
+    private static String urlGetContacts = "http://192.168.1.166:6006/getUsersInLocation";
+    private static String urlGetRoom = "http://192.168.1.166:6006/hostLocation";
     JSONArray contacts = null;
     // Hashmap for ListView
     ArrayList<HashMap<String, String>> contactList;
 
     private static final String TAG_CONTACTS = "contacts";
-    private static final String TAG_ID = "id";
-    private static final String TAG_NAME = "name";
-    private static final String TAG_EMAIL = "email";
-    private static final String TAG_ADDRESS = "address";
-    private static final String TAG_GENDER = "gender";
-    private static final String TAG_PHONE = "phone";
-    private static final String TAG_PHONE_MOBILE = "mobile";
-    private static final String TAG_PHONE_HOME = "home";
-    private static final String TAG_PHONE_OFFICE = "office";
-
+    private static final String TAG_UUID = "uuid";
+    private static final String TAG_LATITUDE = "latitude";
+    private static final String TAG_LONGITUDE = "longitude";
+    private static final String TAG_TIMESTAMP = "timestamp";
 
         private class GetContacts extends AsyncTask<Void, Void, Void> {
 
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                // Showing progress dialog
-//                pDialog = new ProgressDialog(MainActivity.this);
-//                pDialog.setMessage("Please wait...");
-//                pDialog.setCancelable(false);
-//                pDialog.show();
-
             }
 
             @Override
@@ -117,29 +119,37 @@ public class MainMap extends FragmentActivity {
                 // Creating service handler class instance
                 ServiceHandler sh = new ServiceHandler();
 
-                // Making a request to url and getting response
-                String jsonStr = sh.makeServiceCall(url, ServiceHandler.GET);
+                //make a list pair
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
 
-//                Log.d("Response: ", "> " + jsonStr);
+                params.add(new BasicNameValuePair("uuid", android_id));
+                params.add(new BasicNameValuePair("group_uuid", group_uuid));
+
+                // Making a request to url and getting response
+                String jsonStr = sh.makeServiceCall(urlGetContacts, ServiceHandler.POST, params);
+
+                Log.d("Response Members: ", "> " + jsonStr);
 
                 if (jsonStr != null) {
                     try {
-                        JSONObject jsonObj = new JSONObject(jsonStr);
-
-                        // Getting JSON Array node
-                        contacts = jsonObj.getJSONArray(TAG_CONTACTS);
+                        JSONArray jsonObj = new JSONArray(jsonStr);
 
                         // looping through All Contacts
-                        for (int i = 0; i < contacts.length(); i++) {
-                            JSONObject c = contacts.getJSONObject(i);
+                        for (int i = 0; i < jsonObj.length(); i++) {
+                            JSONObject c = jsonObj.getJSONObject(i);
 
-                            String id = c.getString(TAG_ID);
-                            String name = c.getString(TAG_NAME);
-                            String email = c.getString(TAG_EMAIL);
-                            String address = c.getString(TAG_ADDRESS);
-                            String gender = c.getString(TAG_GENDER);
+                            String uuid = c.getString(TAG_UUID);
+                            Double latitude = c.getDouble(TAG_LATITUDE);
+                            Double longitude = c.getDouble(TAG_LONGITUDE);
+                            String timestamp = c.getString(TAG_TIMESTAMP);
 
-                            Log.d("name",name);
+//                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(uuid.charAt(0)+""));
+                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("haha"));
+//                            Log.d("Response2", uuid);
+//                            Log.d("Response2", latitude);
+//                            Log.d("Response2", longitude);
+//                            Log.d("Response2", timestamp);
+
 
                         }
                     } catch (JSONException e) {
@@ -158,6 +168,42 @@ public class MainMap extends FragmentActivity {
                 // Dismiss the progress dialog
 //                if (pDialog.isShowing())
 //                    pDialog.dismiss();
+                /**
+                 * Updating parsed JSON data into ListView
+                 * */
+
+
+            }
+        }
+
+        private class GetRoom extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected Void doInBackground(Void... arg0) {
+                // Creating service handler class instance
+                ServiceHandler sh = new ServiceHandler();
+
+                // Making a request to url and getting response
+                String jsonStr = sh.makeServiceCall(urlGetRoom, ServiceHandler.POST);
+                jsonStr = jsonStr.replaceAll("^\"|\"$", "");
+//                group_uuid = jsonStr;
+                group_uuid = "zanyzebra8";
+                Log.d("Response Room: ", "> " + group_uuid);
+                new GetContacts().execute();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                // Dismiss the progress dialog
+    //                if (pDialog.isShowing())
+    //                    pDialog.dismiss();
                 /**
                  * Updating parsed JSON data into ListView
                  * */
