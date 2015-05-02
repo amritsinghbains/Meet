@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Meet</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Feedback</string>
+    <string name="select_vehicle">Select Vehicle</string>
+    <string name="gps_network_not_enabled">GPS not enabled</string>
+    <string name="open_location_settings">Open Location Settings</string>
+    <string name="Cancel">Cancel</string>
+    <string name="select_vehicle2">Select Vehicle</string>
+    <string name="title_activity_maps">Map</string>
+
+</resources>
