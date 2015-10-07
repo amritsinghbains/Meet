@@ -91,21 +91,21 @@ public class MapsActivity extends FragmentActivity {
         iconImagesText.put("plane2","Fighter Jet");
         iconImagesText.put("truck1","Sport Truck");
 
-        iconImagesSound.put("bike1",R.drawable.bike);
-        iconImagesSound.put("bike2",R.drawable.bike);
-        iconImagesSound.put("bike3",R.drawable.bike);
-        iconImagesSound.put("car1",R.drawable.car);
-        iconImagesSound.put("car2",R.drawable.car);
-        iconImagesSound.put("car3",R.drawable.car);
-        iconImagesSound.put("car4",R.drawable.copcar);
-        iconImagesSound.put("plane1",R.drawable.plane);
-        iconImagesSound.put("plane2",R.drawable.plane);
-        iconImagesSound.put("truck1",R.drawable.truck);
+        iconImagesSound.put("bike1",R.raw.bike);
+        iconImagesSound.put("bike2",R.raw.bike);
+        iconImagesSound.put("bike3",R.raw.bike);
+        iconImagesSound.put("car1",R.raw.car);
+        iconImagesSound.put("car2",R.raw.car);
+        iconImagesSound.put("car3",R.raw.car);
+        iconImagesSound.put("car4",R.raw.copcar);
+        iconImagesSound.put("plane1",R.raw.plane);
+        iconImagesSound.put("plane2",R.raw.plane);
+        iconImagesSound.put("truck1",R.raw.truck);
 
     }
 
     public void my_vehicle_tap(View view){
-        mPlayer.start();
+//        mPlayer.start();
         if(markers.size() == 0){
             Toast.makeText(MapsActivity.this,
                     "You are driving the " + iconImagesText.get(vehicleName), Toast.LENGTH_LONG).show();
@@ -185,7 +185,7 @@ public class MapsActivity extends FragmentActivity {
     private void connectWebSocket() {
         URI uri;
         try {
-            uri = new URI("ws://SOCKET URL COMES HERE");
+            uri = new URI("ws://meetsocket.herokuapp.com");
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return;
